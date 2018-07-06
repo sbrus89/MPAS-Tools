@@ -13,7 +13,8 @@ echo 'Starting workflow to build grid from '$NAME.m':'
 
 echo 'Build mesh using JIGSAW ...'
 CMD='try, run('"'$NAME.m'"'), catch, exit(1), end, exit(0);'
-$MATLAB -nodesktop -nodisplay -nosplash  -r  "$CMD"
+#$MATLAB -nodesktop -nodisplay -nosplash  -r  "$CMD"
+octave --eval $NAME.m
 echo 'done'
 
 echo 'Convert to netcdf file (grid.nc) ...'
