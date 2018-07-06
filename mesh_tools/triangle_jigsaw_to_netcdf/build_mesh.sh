@@ -2,9 +2,9 @@
 # Directs process to build MPAS mesh using JIGSAW
 # Phillip J Wolfram, 01/19/2018
 
-MATLAB=/Applications/MATLAB_R2015b.app/bin/matlab
+MATLAB=matlab
 # must have full, absolute path below
-JIGSAW2NETCDF=/Users/pwolfram/Documents/GridGen/MultiscaleMeshGen/MPAS-Tools/grid_gen/triangle_jigsaw_to_netcdf/
+JIGSAW2NETCDF=/users/sbrus/MPAS-Tools/mesh_tools/triangle_jigsaw_to_netcdf
 MESHCONVERTER=${JIGSAW2NETCDF}/../mesh_conversion_tools/MpasMeshConverter.x
 CELLCULLER=${JIGSAW2NETCDF}/../mesh_conversion_tools/MpasCellCuller.x
 NAME=${1%.*}
