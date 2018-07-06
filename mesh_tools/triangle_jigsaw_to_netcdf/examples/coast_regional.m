@@ -181,32 +181,32 @@ jigsaw_path = jigsaw_path_locations;
         xrad.*           sin(xlat) ;
 
 
-    figure('color','w') ;               % HFUNCTION parts
-    hnew(zlev>+0.) = inf;
-    surf(XPOS,YPOS,hnew);
-    view(2); axis image; hold on ;
-    shading interp;
-    colorbar;
-    title('JIGSAW HFUN data') ;
+%    figure('color','w') ;               % HFUNCTION parts
+%    hnew(zlev>+0.) = inf;
+%    surf(XPOS,YPOS,hnew);
+%    view(2); axis image; hold on ;
+%    shading interp;
+%    colorbar;
+%    title('JIGSAW HFUN data') ;
 
 
-    figure('color','w') ;               % TRIA mesh parts
-    patch ( ...
-        'faces',mesh.tria3.index( tmsk,1:3), ...
-        'vertices', mesh.point.coord(:,1:3), ...
-        'facevertexcdata',tlev(tmsk,:), ...
-        'facecolor','flat', ...
-        'edgecolor',[.2,.2,.2]) ;
-    hold on; axis image off;
-    patch ( ...
-        'faces',mesh.tria3.index(~tmsk,1:3), ...
-        'vertices', mesh.point.coord(:,1:3), ...
-        'facecolor','w', ...
-        'edgecolor','none');
-    set(gca,'clipping','off') ;
-    caxis([min(zlev(:))*4./3., +0.]);
-    colormap('hot'); brighten(+0.75);
-    title('JIGSAW TRIA mesh') ;
+%    figure('color','w') ;               % TRIA mesh parts
+%    patch ( ...
+%        'faces',mesh.tria3.index( tmsk,1:3), ...
+%        'vertices', mesh.point.coord(:,1:3), ...
+%        'facevertexcdata',tlev(tmsk,:), ...
+%        'facecolor','flat', ...
+%        'edgecolor',[.2,.2,.2]) ;
+%    hold on; axis image off;
+%    patch ( ...
+%        'faces',mesh.tria3.index(~tmsk,1:3), ...
+%        'vertices', mesh.point.coord(:,1:3), ...
+%        'facecolor','w', ...
+%        'edgecolor','none');
+%    set(gca,'clipping','off') ;
+%    caxis([min(zlev(:))*4./3., +0.]);
+%    colormap('hot'); brighten(+0.75);
+%    title('JIGSAW TRIA mesh') ;
 
 
    [CP,CE,PV,EV] = makedual2 (  ...     % DUAL mesh parts
@@ -216,14 +216,14 @@ jigsaw_path = jigsaw_path_locations;
     cmsk = xmsk(CP(:,1)) ;
     clev = xlev(CP(:,1)) ;
 
-    figure('color','w') ;
-    drawdual2(CP( cmsk,:),CE,PV,EV,clev(cmsk));
-    hold on; axis image off;
-    drawdual2(CP(~cmsk,:),CE,PV,EV,'w','none');
-    set(gca,'clipping','off') ;
-    caxis([min(zlev(:))*4./3., +0.]);
-    colormap('hot'); brighten(+0.75);
-    title('JIGSAW DUAL mesh') ;
+%    figure('color','w') ;
+%    drawdual2(CP( cmsk,:),CE,PV,EV,clev(cmsk));
+%    hold on; axis image off;
+%    drawdual2(CP(~cmsk,:),CE,PV,EV,'w','none');
+%    set(gca,'clipping','off') ;
+%    caxis([min(zlev(:))*4./3., +0.]);
+%    colormap('hot'); brighten(+0.75);
+%    title('JIGSAW DUAL mesh') ;
 
 end
 
