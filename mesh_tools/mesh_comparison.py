@@ -48,7 +48,7 @@ class comparison_plots:
       # Plot the data contours
       cplot = ax.tricontourf(lon_plot,lat_plot,data_plot,levels=levels)
 
-      # Plot the land, coastlines, and lat.lon lines
+      # Plot the land, coastlines, and lat/lon lines
       m = Basemap(projection='cyl',llcrnrlat=plot_box[2],urcrnrlat=plot_box[3],\
                   llcrnrlon=plot_box[0],urcrnrlon=plot_box[1],resolution='c')    
       m.fillcontinents(color='grey',lake_color='white')
@@ -90,7 +90,7 @@ class comparison_plots:
         ax.hist(data,'auto')
 
       # Add axis and figure labels
-      ax.set_title(mesh_name)
+      ax.set_title(mesh_name + '\n(Number of cells = '+str(data.size)+')')
       ax.set_ylabel('count')
       ax.set_xlabel(self.var.lower())
       self.hist.suptitle(self.var,y=1.05,fontweight='bold')
@@ -106,11 +106,8 @@ class comparison_plots:
       # Add percentage axis 
       ax2 = ax.twinx()
       ax_ylim = ax.get_ylim()
-      ax2.set_ylim([0,ax_ylim[1]/data.size])
+      ax2.set_ylim([0,ax_ylim[1]/data.size*100])
       ax2.set_ylabel('percentage')
-
-      # Add text for number of cells
-      ax.text(0.1,0.8,'Number of cells '+str(data.size),transform=ax.transAxes)
 
       # Save the figure
       for path in self.savepaths:
@@ -118,7 +115,7 @@ class comparison_plots:
 
   ##############################################################
   
-  def plot_latavg(self,lat,data,mesh_name,binsize,i,bounds=''):
+  def plot_latavg(self,lat,data,mesh_name,i,bounds='',binsize=1.0):
   
       print "   plotting lat average: " + self.var
   
@@ -201,17 +198,19 @@ class comparison_plots:
     # Find the lower and upper bounds of the subplot axes limits
     axes = fig.get_axes()
     for ax in axes:
-      xlim = ax.get_xlim()
-      xlim_all[0] = min(xlim_all[0],xlim[0])
-      xlim_all[1] = max(xlim_all[1],xlim[1])
-      ylim = ax.get_ylim()
-      ylim_all[0] = min(ylim_all[0],ylim[0])
-      ylim_all[1] = max(ylim_all[1],ylim[1])
+      if ax.get_ylabel() != 'percentage':
+        xlim = ax.get_xlim()
+        xlim_all[0] = min(xlim_all[0],xlim[0])
+        xlim_all[1] = max(xlim_all[1],xlim[1])
+        ylim = ax.get_ylim()
+        ylim_all[0] = min(ylim_all[0],ylim[0])
+        ylim_all[1] = max(ylim_all[1],ylim[1])
 
     # Set all axes limits to the lower and upper bounds
     for ax in axes:
-      ax.set_xlim(xlim)
-      ax.set_ylim(ylim)
+      if ax.get_ylabel() != 'percentage':
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
 
 ##############################################################
 # Configuration Section
@@ -225,32 +224,40 @@ meshes = [
            # 'file':'mesh_with_metrics.nc',
            # 'name':'EC60to30V4 (Jigsaw)'},
 
-           {'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNAEC60to30cr10/init/mesh_metrics/',
-            'file':'mesh_with_metrics.nc',
-            'name':'USNAEC60to30cr10'}
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNAEC60to30cr10/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USNAEC60to30cr10'},
 
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNARRS30to10cr10/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
            # 'name':'USNARRS30to10cr10'}
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNARRS30to10cr5/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
-           # 'name':'USNARRS30to10cr5'}
+           # 'name':'USNARRS30to10cr5'},
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNARRS30to10cr1/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
-           # 'name':'USNARRS30to10cr1'}
+           # 'name':'USNARRS30to10cr1'},
+
+           {'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDEQU120cr1/init/mesh_metrics/',
+            'file':'mesh_with_metrics.nc',
+            'name':'USDEQU120cr1'},
+           {'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDEQU240cr1/init/mesh_metrics/',
+            'file':'mesh_with_metrics.nc',
+            'name':'USDEQU240cr1'},
 
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDERRS30to10cr1/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
-           # 'name':'USDERRS30to10cr1'}
+           # 'name':'USDERRS30to10cr1'},
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDERRS30to10cr500m/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
-           # 'name':'USDERRS30to10cr500m'}
+           # 'name':'USDERRS30to10cr500m'},
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDERRS30to10cr100m/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
            # 'name':'USDERRS30to10cr100m'}
          ]
 
 plot_box = Entire_Globe 
+cell_width_bounds = [0.9,275.0]
 
 ##############################################################
 # Main Program
@@ -277,17 +284,16 @@ for i,mesh in enumerate(meshes):
     cellWidth = 2.0*np.sqrt(areaCell/np.pi)/1000
     
     # Plot fields on globe
-    #cell_size.plot_field(loncell,latcell,cellWidth,  mesh['name'],i+1,plot_box) 
-    #cell_qual.plot_field(loncell,latcell,cellQuality,mesh['name'],i+1,plot_box) 
+    cell_size.plot_field(loncell,latcell,cellWidth,  mesh['name'],i+1,plot_box,cell_width_bounds) 
+    cell_qual.plot_field(loncell,latcell,cellQuality,mesh['name'],i+1,plot_box,[0.0,1.0]) 
 
     # Plot histograms
-    cell_size.plot_hist(cellWidth,  mesh['name'],i+1) 
+    cell_size.plot_hist(cellWidth,  mesh['name'],i+1,bins=100) 
     cell_qual.plot_hist(cellQuality,mesh['name'],i+1,bins=20)
 
     # Plot latitude averages
-    binsize = 1.0
-    cell_size.plot_latavg(latcell,cellWidth,  mesh['name'],binsize,i+1) 
-    cell_qual.plot_latavg(latcell,cellQuality,mesh['name'],binsize,i+1)
+    cell_size.plot_latavg(latcell,cellWidth,  mesh['name'],i+1) 
+    cell_qual.plot_latavg(latcell,cellQuality,mesh['name'],i+1)
 
 
 
