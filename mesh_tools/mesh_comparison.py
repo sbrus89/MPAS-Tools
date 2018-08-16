@@ -17,9 +17,14 @@ Entire_Globe = np.array([-180,180,-90,90])
 # Functions
 ##############################################################
 class comparison_plots:
-  def plot_field(self,lon,lat,data,var,mesh_name,nfig,i,nmesh,plot_box,bounds=''):
+
+  def __init__(self,nmesh,var):
+    self.nmesh = nmesh
+    self.var = var
+
+  def plot_field(self,lon,lat,data,mesh_name,i,plot_box,bounds=''):
   
-      print "   plotting field: " + var
+      print "   plotting field: " + self.var
       
       lon_plot,lat_plot,data_plot = self.get_data_inside_box(lon,lat,data,plot_box)
   
@@ -44,19 +49,19 @@ class comparison_plots:
       m.drawmeridians(np.arange(plot_box[0],plot_box[1],60),labels=[False,False, False, True])
 
       cb = self.field.colorbar(cplot,ax=ax)
-      cb.set_label(var.lower())
+      cb.set_label(self.var.lower())
 
       ax.set_title(mesh_name)
       ax.axis(plot_box)
-      self.field.suptitle(var,y=1.05,fontweight='bold')
+      self.field.suptitle(self.var,y=1.05,fontweight='bold')
       self.field.tight_layout()
-      self.field.savefig(var.replace(' ','')+'_field.png',bbox_inches='tight')
+      self.field.savefig(self.var.replace(' ','')+'_field.png',bbox_inches='tight')
   
   ##############################################################
   
-  def plot_hist(self,data,var,mesh_name,nfig,i,nmesh,bounds=''):
+  def plot_hist(self,data,mesh_name,i,bounds=''):
   
-      print "   plotting histogram: " + var
+      print "   plotting histogram: " + self.var
  
       if i == 1: 
         self.hist = plt.figure()
@@ -67,7 +72,7 @@ class comparison_plots:
       ax.hist(data,'auto')
       ax.set_title(mesh_name)
       ax.set_ylabel('count')
-      ax.set_xlabel(var.lower())
+      ax.set_xlabel(self.var.lower())
 
 
       if bounds:
@@ -75,15 +80,15 @@ class comparison_plots:
         ax.set_ylim([bounds[2],bounds[3]])
       else:
         self.make_axis_same(self.hist)
-      self.hist.suptitle(var,y=1.05,fontweight='bold')
+      self.hist.suptitle(self.var,y=1.05,fontweight='bold')
       self.hist.tight_layout()
-      self.hist.savefig(var.replace(' ','')+'_hist.png',bbox_inches='tight')
+      self.hist.savefig(self.var.replace(' ','')+'_hist.png',bbox_inches='tight')
 
   ##############################################################
   
-  def plot_latavg(self,lat,data,var,mesh_name,binsize,nfig,i,nmesh,bounds=''):
+  def plot_latavg(self,lat,data,mesh_name,binsize,i,bounds=''):
   
-      print "   plotting lat average: " + var
+      print "   plotting lat average: " + self.var
   
       lat_bins = np.arange(-90.0,90.0,binsize)
       lat_avg = np.zeros(lat_bins.shape)
@@ -113,15 +118,15 @@ class comparison_plots:
       ax.plot(lat_bins,lat_avg)
       ax.set_title(mesh_name)
       ax.set_xlabel('latitude')
-      ax.set_ylabel('average '+var.lower())
+      ax.set_ylabel('average '+self.var.lower())
       if bounds:
         ax.set_xlim([bounds[0],bounds[1]])
         ax.set_ylim([bounds[2],bounds[3]])
       else:
         self.make_axis_same(self.latavg)
-      self.latavg.suptitle(var,y=1.05,fontweight='bold')
+      self.latavg.suptitle(self.var,y=1.05,fontweight='bold')
       self.latavg.tight_layout()
-      self.latavg.savefig(var.replace(' ','')+'_lat.png',bbox_inches='tight')
+      self.latavg.savefig(self.var.replace(' ','')+'_lat.png',bbox_inches='tight')
   
   #############################################################
   
@@ -177,10 +182,10 @@ plot_box = Entire_Globe
 ##############################################################
 # Main Program
 ##############################################################
-cell_size = comparison_plots()
-cell_qual = comparison_plots()
-
 nmesh = len(meshes)
+cell_size = comparison_plots(nmesh,'Cell Width')
+cell_qual = comparison_plots(nmesh,'Cell Quality')
+
 for i,mesh in enumerate(meshes):
    
     print "Mesh: " + mesh['name']
@@ -196,17 +201,17 @@ for i,mesh in enumerate(meshes):
     cellWidth = 2.0*np.sqrt(areaCell/np.pi)/1000
     
     # Plot fields on globe
-    cell_size.plot_field(loncell,latcell,cellWidth,  'Cell Area',   mesh['name'],1,i+1,nmesh,plot_box) #,[10,60]) 
-    cell_qual.plot_field(loncell,latcell,cellQuality,'Cell Quality',mesh['name'],2,i+1,nmesh,plot_box) #,[0,1]) 
+    cell_size.plot_field(loncell,latcell,cellWidth,  mesh['name'],i+1,plot_box) #,[10,60]) 
+    cell_qual.plot_field(loncell,latcell,cellQuality,mesh['name'],i+1,plot_box) #,[0,1]) 
 
     # Plot histograms
-    cell_size.plot_hist(cellWidth,  'Cell Area',   mesh['name'],3,i+1,nmesh) #,[0,4.0e9,0,60000])
-    cell_qual.plot_hist(cellQuality,'Cell Quality',mesh['name'],4,i+1,nmesh) #,[0,1.1,0,8000])
+    cell_size.plot_hist(cellWidth,  mesh['name'],i+1) #,[0,4.0e9,0,60000])
+    cell_qual.plot_hist(cellQuality,mesh['name'],i+1) #,[0,1.1,0,8000])
 
     # Plot latitude averages
     binsize = 1.0
-    cell_size.plot_latavg(latcell,cellWidth,  'Cell Area',   mesh['name'],binsize,5,i+1,nmesh) #,[-90,90,0,4.5e9])
-    cell_qual.plot_latavg(latcell,cellQuality,'Cell Quality',mesh['name'],binsize,6,i+1,nmesh) #,[-90,90,0,1.1])
+    cell_size.plot_latavg(latcell,cellWidth,  mesh['name'],binsize,i+1) #,[-90,90,0,4.5e9])
+    cell_qual.plot_latavg(latcell,cellQuality,mesh['name'],binsize,i+1) #,[-90,90,0,1.1])
 
 
 
