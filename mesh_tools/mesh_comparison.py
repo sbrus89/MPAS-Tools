@@ -72,7 +72,7 @@ class comparison_plots:
   
   ##############################################################
   
-  def plot_hist(self,data,mesh_name,i,bounds=''):
+  def plot_hist(self,data,mesh_name,i,bounds='',bins=''):
   
       print "   plotting histogram: " + self.var
  
@@ -84,7 +84,10 @@ class comparison_plots:
       ax = self.hist.add_subplot(nmesh,1,i)
 
       # Plot a histogram of the data
-      ax.hist(data,'auto')
+      if bins:
+        ax.hist(data,bins)
+      else:
+        ax.hist(data,'auto')
 
       # Add axis and figure labels
       ax.set_title(mesh_name)
@@ -99,6 +102,15 @@ class comparison_plots:
         ax.set_ylim([bounds[2],bounds[3]])
       else:
         self.make_axis_same(self.hist)
+    
+      # Add percentage axis 
+      ax2 = ax.twinx()
+      ax_ylim = ax.get_ylim()
+      ax2.set_ylim([0,ax_ylim[1]/data.size])
+      ax2.set_ylabel('percentage')
+
+      # Add text for number of cells
+      ax.text(0.1,0.8,'Number of cells '+str(data.size),transform=ax.transAxes)
 
       # Save the figure
       for path in self.savepaths:
@@ -212,9 +224,30 @@ meshes = [
            #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/EC60to30JS/init/mesh_metrics/',
            # 'file':'mesh_with_metrics.nc',
            # 'name':'EC60to30V4 (Jigsaw)'},
+
            {'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNAEC60to30cr10/init/mesh_metrics/',
             'file':'mesh_with_metrics.nc',
             'name':'USNAEC60to30cr10'}
+
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNARRS30to10cr10/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USNARRS30to10cr10'}
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNARRS30to10cr5/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USNARRS30to10cr5'}
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USNARRS30to10cr1/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USNARRS30to10cr1'}
+
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDERRS30to10cr1/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USDERRS30to10cr1'}
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDERRS30to10cr500m/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USDERRS30to10cr500m'}
+           #{'path':'/users/sbrus/scratch1/MPAS-O_testing/ocean/global_ocean/USDERRS30to10cr100m/init/mesh_metrics/',
+           # 'file':'mesh_with_metrics.nc',
+           # 'name':'USDERRS30to10cr100m'}
          ]
 
 plot_box = Entire_Globe 
@@ -244,17 +277,17 @@ for i,mesh in enumerate(meshes):
     cellWidth = 2.0*np.sqrt(areaCell/np.pi)/1000
     
     # Plot fields on globe
-    cell_size.plot_field(loncell,latcell,cellWidth,  mesh['name'],i+1,plot_box) #,[10,60]) 
-    cell_qual.plot_field(loncell,latcell,cellQuality,mesh['name'],i+1,plot_box) #,[0,1]) 
+    #cell_size.plot_field(loncell,latcell,cellWidth,  mesh['name'],i+1,plot_box) 
+    #cell_qual.plot_field(loncell,latcell,cellQuality,mesh['name'],i+1,plot_box) 
 
     # Plot histograms
-    cell_size.plot_hist(cellWidth,  mesh['name'],i+1) #,[0,4.0e9,0,60000])
-    cell_qual.plot_hist(cellQuality,mesh['name'],i+1) #,[0,1.1,0,8000])
+    cell_size.plot_hist(cellWidth,  mesh['name'],i+1) 
+    cell_qual.plot_hist(cellQuality,mesh['name'],i+1,bins=20)
 
     # Plot latitude averages
     binsize = 1.0
-    cell_size.plot_latavg(latcell,cellWidth,  mesh['name'],binsize,i+1) #,[-90,90,0,4.5e9])
-    cell_qual.plot_latavg(latcell,cellQuality,mesh['name'],binsize,i+1) #,[-90,90,0,1.1])
+    cell_size.plot_latavg(latcell,cellWidth,  mesh['name'],binsize,i+1) 
+    cell_qual.plot_latavg(latcell,cellQuality,mesh['name'],binsize,i+1)
 
 
 
